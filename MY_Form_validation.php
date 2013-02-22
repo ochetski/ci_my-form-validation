@@ -26,7 +26,7 @@ class MY_Form_validation extends CI_Form_validation
 	 */
 	public function valid_phone($str)
 	{
-		$regex = '~^(0?(\d{2})|\(0?(\d{2})\))[^\)\d]?(\d{4}[^\d]?\d{4,5})$~ix';
+		$regex = '~^(0?(\d{2})|\(0?(\d{2})\))[^\)\d]?[ ]?(\d{4,5}[ \.\-]?\d{4})$~ix';
 
 		# clean non numeric
 		$str = preg_replace('~[^0-9]+~', '', $str);
