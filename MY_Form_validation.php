@@ -21,7 +21,7 @@ class MY_Form_validation extends CI_Form_validation
 	 * Match valid brazilian phone format
 	 *
 	 * @access	public
-	 * @param	string
+	 * @param	string	$str
 	 * @return	bool
 	 */
 	public function valid_phone($str)
@@ -40,13 +40,11 @@ class MY_Form_validation extends CI_Form_validation
 	 * Match valid CPF format
 	 *
 	 * @access	public
-	 * @param	string
+	 * @param	string	$str
 	 * @return	bool
 	 */
 	public function valid_cpf($str)
 	{
-		$nulos = array('01234567890', '12345678909','11111111111','22222222222','33333333333','44444444444','55555555555','66666666666','77777777777','88888888888','99999999999','00000000000');
-
 		# check format
 		if(!preg_match('~^([0-9]{11}|[0-9]{3}\.[0-9]{3}\.[0-9]{3}\-[0-9]{2})$~i', $str)) {
 			return false;
@@ -55,8 +53,8 @@ class MY_Form_validation extends CI_Form_validation
 		# clean non numeric
 		$str = preg_replace('~[^0-9]+~', '', $str);
 
-		# returns false if it's null
-		if(in_array($str, $nulos)) {
+		# returns false if it's an invalid number
+		if(preg_match('^(01234567890|12345678909|(\d)\2{10})$', $str)) {
 			return false;
 		}
 
@@ -95,7 +93,7 @@ class MY_Form_validation extends CI_Form_validation
 	 * Match valid CNPJ format
 	 *
 	 * @access	public
-	 * @param	string
+	 * @param	string	$str
 	 * @return	bool
 	 */
 	public function valid_cnpj($str)
@@ -106,7 +104,7 @@ class MY_Form_validation extends CI_Form_validation
 		}
 
 		# clean non numeric
-		$str = preg_replace('/[^0-9]/si', '', $str);
+		$str = preg_replace('/[^0-9]+/si', '', $str);
 
 		# calculate the penultimate verificator digit
 		$sum1 = ($str{0} * 5) +
@@ -153,8 +151,6 @@ class MY_Form_validation extends CI_Form_validation
 	 * @access	public
 	 * @param	string
 	 * @param	field
-	 * @param	string
-	 * @param	mixed
 	 * @return	bool
 	 */
 	public function is_unique($str, $field)
@@ -169,6 +165,24 @@ class MY_Form_validation extends CI_Form_validation
 
 		# anyway do as usual
 		return parent::is_unique($str, $field[0]);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Checks if the field exists in db column
+	 *
+	 * @access	public
+	 * @param	string	$str
+	 * @param	mixed	$field
+	 * @return	bool
+	 */
+	public function is_valid($str, $field)
+	{
+		list($table, $field)=explode('.', $field);
+		$query = $this->CI->db->limit(1)->get_where($table, array($field => $str));
+
+		return $query->num_rows() !== 0;
 	}
 
 }
