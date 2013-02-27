@@ -145,7 +145,7 @@ class MY_Form_validation extends CI_Form_validation
 	// --------------------------------------------------------------------
 
 	/**
-	 * Funcao para formatar datas ou outros dados atraves de regex
+	 * To validate date and time
 	 * Date will also be tested if defined numerical values for month, year and day
 	 *
 	 * @param	string	$str
