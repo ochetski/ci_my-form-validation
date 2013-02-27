@@ -1,4 +1,4 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * MY Form Validation
@@ -31,7 +31,7 @@ class MY_Form_validation extends CI_Form_validation
 		# clean non numeric
 		$str = preg_replace('~[^0-9]+~', '', $str);
 
-		return (!preg_match($regex, $str) ? false : $str);
+		return (!preg_match($regex, $str) ? FALSE : $str);
 	}
 
 	// --------------------------------------------------------------------
@@ -47,7 +47,7 @@ class MY_Form_validation extends CI_Form_validation
 	{
 		# check format
 		if(!preg_match('~^([0-9]{11}|[0-9]{3}\.[0-9]{3}\.[0-9]{3}\-[0-9]{2})$~i', $str)) {
-			return false;
+			return FALSE;
 		}
 
 		# clean non numeric
@@ -55,7 +55,7 @@ class MY_Form_validation extends CI_Form_validation
 
 		# returns false if it's an invalid number
 		if(preg_match('^(01234567890|12345678909|(\d)\2{10})$', $str)) {
-			return false;
+			return FALSE;
 		}
 
 		# calculate the penultimate verificator digit
@@ -68,7 +68,7 @@ class MY_Form_validation extends CI_Form_validation
 
 		# returns false if calculated digit is invalid
 		if($acum != $str{9}) {
-			return false;
+			return FALSE;
 		}
 
 		# calculate the last verificator digit
@@ -81,7 +81,7 @@ class MY_Form_validation extends CI_Form_validation
 
 		# returns false if calculated digit is invalid
 		if($acum != $str{10}) {
-			return false;
+			return FALSE;
 		}
 
 		return $str;
@@ -100,7 +100,7 @@ class MY_Form_validation extends CI_Form_validation
 	{
 		# check format (xx.xxx.xxx/xxxx-xx or 14 digits)
 		if(!preg_match('~^([0-9]{14}|[0-9]{2,3}\.[0-9]{3}\.[0-9]{3}\/[0-9]{4}\-[0-9]{2})$~i', $str)) {
-			return false;
+			return FALSE;
 		}
 
 		# clean non numeric
@@ -139,7 +139,48 @@ class MY_Form_validation extends CI_Form_validation
 		$last = $sum2 % 11;
 		$digit2 = $last < 2 ? 0 : 11 - $last;
 
-		return ($str{12} == $digit1 && $str{13} == $digit2) ? $str : false;
+		return ($str{12} == $digit1 && $str{13} == $digit2) ? $str : FALSE;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Funcao para formatar datas ou outros dados atraves de regex
+	 * Date will also be tested if defined numerical values for month, year and day
+	 *
+	 * @param	string	$str
+	 * @param	string	$format	using php format with preceded %, default %d/%m/%Y
+	 */
+	public function valid_date($str, $format = '%d/%m/%Y')
+	{
+		$pattern = str_replace(
+			array('%d', '%D', '%j', '%m', '%M', '%n', '%Y', '%y', '%G', '%g', '%H', '%h', '%i', '%s'),
+			array('(?P<d>\d{2})', '(?P<D>\w{3})', '(?P<j>\d{1,2})', '(?P<m>\d{2})', '(?P<M>\w{3})', '(?P<n>\d{1,2})', '(?P<Y>\d{4})', '(?P<y>\d{2})', '(?P<G>\d{1,2})', '(?P<g>\d{1,2})', '(?P<H>\d{2})', '(?P<h>\d{2})', '(?P<i>\d{2})', '(?P<s>\d{2})'),
+			addslashes($format)
+		);
+
+		if(preg_match("~{$pattern}~s", $str, $matches))
+		{
+			if(preg_match('~^.*?(%([dj]).*?%([mn]).*?%(Y)|%([dj]).*?%(Y).*?%([mn])|%([mn]).*?%(Y).*?%([dj])|%([mn]).*?%([dj]).*?%(Y)|%(Y).*?%([dj]).*?%([mn])|%(Y).*?%([mn]).*?%([dj])).*$~s', $format))
+			{
+				$d = isset($matches['d']) ? $matches['d'] : $matches['j'];
+				$m = isset($matches['m']) ? $matches['m'] : $matches['n'];
+				$y = $matches['Y'];
+
+				if(checkdate($m, $d, $y))
+				{
+					return $str;
+				}
+				else
+				{
+					return FALSE;
+				}
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
 	}
 
 	// --------------------------------------------------------------------
