@@ -54,7 +54,7 @@ class MY_Form_validation extends CI_Form_validation
 		$str = preg_replace('~[^0-9]+~', '', $str);
 
 		# returns false if it's an invalid number
-		if(preg_match('^(01234567890|12345678909|(\d)\2{10})$', $str)) {
+		if(preg_match('~^(01234567890|12345678909|(\d)\2{10})$~s', $str)) {
 			return FALSE;
 		}
 
